@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Commodity Price Forecast</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+
+        .container-box {
+            margin-top: 120px;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .btn-primary {
+            width: 100%;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.92);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-box {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            text-align: center;
+            max-width: 360px;
+        }
+
+        .loading-box h4 {
+            margin-top: 18px;
+            margin-bottom: 10px;
+        }
+
+        .loading-box p {
+            color: #6c757d;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-box">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h4>Training model...</h4>
+        <p>Please wait while the forecast is being generated.</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 container-box">
+
+            <h1>Agricultural Commodity Price Forecast</h1>
+
+            <form action="/forecast" method="POST" id="forecastForm">
+
+                <div class="mb-3">
+                    <label class="form-label">Select Commodity</label>
+
+                    <select name="commodity" class="form-control" required>
+                        {% for commodity in commodities %}
+                            <option value="{{ commodity }}">{{ commodity }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitButton">
+                    Run Forecast
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    const forecastForm = document.getElementById("forecastForm");
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const submitButton = document.getElementById("submitButton");
+
+    forecastForm.addEventListener("submit", function () {
+        loadingOverlay.style.display = "flex";
+        submitButton.disabled = true;
+        submitButton.textContent = "Training...";
+    });
+</script>
+
+</body>
+</html>

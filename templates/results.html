@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forecast Results</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        h4 {
+            color: #34495e;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .graph {
+            margin-bottom: 50px;
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        img {
+            width: 100%;
+            max-width: 900px;
+            border-radius: 8px;
+        }
+
+        .metrics-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .metric-card h5 {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .metric-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .model-info {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 5px solid #3498db;
+        }
+
+        .model-info p {
+            margin: 8px 0;
+            font-size: 0.95rem;
+        }
+
+        table {
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 10px 30px;
+            font-size: 1rem;
+            border-radius: 5px;
+        }
+
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .pagination-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .table-status {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>📊 Forecast Results for {{ commodity }}</h1>
+
+    <!-- Forecast Explanation -->
+    <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 30px 0; border-left: 5px solid #1976d2;">
+        <h5 style="color: #1565c0; margin-top: 0;">🎯 What You're Seeing</h5>
+        <p style="margin: 10px 0; color: #424242;">
+            <strong>Historical Data (2025):</strong> Blue line shows actual prices from January to December 2025<br>
+            <strong>Test Predictions:</strong> Green dashed line shows how well the model predicts on unseen 2025 data<br>
+            <strong>Year 2026 Forecast:</strong> Red line shows predicted prices for all 365 days of 2026<br>
+            <strong>Confidence Band:</strong> Light red shaded area indicates 95% probability the actual price will fall in this range
+        </p>
+    </div>
+
+    <!-- Model Metrics Section -->
+    <div class="metrics-container">
+        <div class="metric-card">
+            <h5>RMSE (Root Mean Squared Error)</h5>
+            <div class="value">₹{{ metrics.rmse }}</div>
+            <small>Lower is better</small>
+        </div>
+        <div class="metric-card">
+            <h5>MAE (Mean Absolute Error)</h5>
+            <div class="value">₹{{ metrics.mae }}</div>
+            <small>Average prediction error</small>
+        </div>
+        <div class="metric-card">
+            <h5>MAPE (Mean Absolute % Error)</h5>
+            <div class="value">{{ metrics.mape }}%</div>
+            <small>Percentage error</small>
+        </div>
+    </div>
+
+    <!-- Model Information -->
+    <div class="model-info">
+        <h5>Model Information</h5>
+        <p><strong>Model:</strong> {{ metrics.model_order }}</p>
+        <p><strong>Feature Basis:</strong> {{ metrics.feature_basis }}</p>
+        <p><strong>Training Samples:</strong> {{ metrics.train_samples }} | <strong>Test Samples:</strong> {{ metrics.test_samples }}</p>
+        <p><small style="color: #7f8c8d;">The model was trained on 80% of the data and validated on 20% test data. Lower RMSE and MAPE indicate better model accuracy.</small></p>
+    </div>
+
+    <!-- Price Trend -->
+    <div class="graph">
+        <h4>📈 Price Trend</h4>
+        <img src="{{ trend_plot }}" alt="Price Trend">
+    </div>
+
+    <!-- Moving Average -->
+    <div class="graph">
+        <h4>📊 Moving Average Analysis</h4>
+        <img src="{{ ma_plot }}" alt="Moving Average">
+    </div>
+
+    <!-- Outlier Detection -->
+    <div class="graph">
+        <h4>🔍 Outlier Detection</h4>
+        <img src="{{ outlier_plot }}" alt="Outliers">
+    </div>
+
+    <!-- Time Series Decomposition -->
+    <div class="graph">
+        <h4>🔬 Time Series Decomposition</h4>
+        <img src="{{ decomposition_plot }}" alt="Decomposition">
+        <p style="margin: 10px 0; color: #424242; font-size: 0.9rem;">
+            <strong>Decomposition Analysis:</strong> The time series is broken down into:<br>
+            • <strong>Trend:</strong> Long-term direction of prices (increasing/decreasing)<br>
+            • <strong>Seasonal:</strong> Regular patterns that repeat over time<br>
+            • <strong>Residual:</strong> Random noise after removing trend and seasonality
+        </p>
+    </div>
+
+    <!-- Forecast -->
+    <div class="graph">
+        <h4>🔮 Price Forecast with Confidence Intervals</h4>
+        <img src="{{ forecast_plot }}" alt="Forecast">
+    </div>
+
+    <!-- Forecast Table -->
+    <h4>📋 Predicted Prices for Year 2026 (365 Days)</h4>
+
+    <div class="table-controls">
+        <div class="table-status" id="tableStatus"></div>
+        <div class="pagination-buttons">
+            <button class="btn btn-outline-primary" id="prevPageButton" type="button">Previous</button>
+            <button class="btn btn-outline-primary" id="nextPageButton" type="button">Next</button>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped text-center">
+        <thead class="table-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <tr>
+                <th>Day</th>
+                <th>Predicted Price (₹)</th>
+                <th>Lower Bound (95% CI)</th>
+                <th>Upper Bound (95% CI)</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for price in forecast %}
+            <tr class="forecast-row">
+                <td><strong>{{ loop.index }}</strong></td>
+                <td style="font-weight: bold; color: #e74c3c;">{{ price }}</td>
+                <td style="color: #27ae60;">{{ conf_lower[loop.index0] }}</td>
+                <td style="color: #27ae60;">{{ conf_upper[loop.index0] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p style="text-align: center; margin-top: 20px; color: #7f8c8d; font-size: 0.9rem;">
+        <strong>95% Confidence Interval:</strong> There's a 95% probability the actual price will fall between the lower and upper bounds.
+    </p>
+
+    <div class="btn-container">
+        <a href="/" class="btn btn-primary btn-lg">← Back to Home</a>
+    </div>
+
+</div>
+
+<script>
+    const rowsPerPage = 10;
+    const tableRows = Array.from(document.querySelectorAll(".forecast-row"));
+    const prevPageButton = document.getElementById("prevPageButton");
+    const nextPageButton = document.getElementById("nextPageButton");
+    const tableStatus = document.getElementById("tableStatus");
+    let currentPage = 1;
+
+    function renderTablePage(page) {
+        const totalPages = Math.ceil(tableRows.length / rowsPerPage);
+        currentPage = Math.min(Math.max(page, 1), totalPages);
+
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+
+        tableRows.forEach(function (row, index) {
+            row.style.display = index >= startIndex && index < endIndex ? "" : "none";
+        });
+
+        const visibleStart = startIndex + 1;
+        const visibleEnd = Math.min(endIndex, tableRows.length);
+        tableStatus.textContent = `Showing ${visibleStart}-${visibleEnd} of ${tableRows.length} predicted days`;
+
+        prevPageButton.disabled = currentPage === 1;
+        nextPageButton.disabled = currentPage === totalPages;
+    }
+
+    prevPageButton.addEventListener("click", function () {
+        renderTablePage(currentPage - 1);
+        window.scrollTo({ top: prevPageButton.offsetTop - 120, behavior: "smooth" });
+    });
+
+    nextPageButton.addEventListener("click", function () {
+        renderTablePage(currentPage + 1);
+        window.scrollTo({ top: nextPageButton.offsetTop - 120, behavior: "smooth" });
+    });
+
+    renderTablePage(1);
+</script>
+
+</body>
+</html>
